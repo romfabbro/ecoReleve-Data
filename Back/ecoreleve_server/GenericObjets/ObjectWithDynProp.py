@@ -17,28 +17,34 @@ class ObjectWithDynProp:
     ''' Class to extend for mapped object with dynamic properties '''
     ObjContext = DBSession
     PropDynValuesOfNow = {}
-
+    allProp = None
+    
     def __init__(self,ObjContext):
         self.ObjContext = DBSession
         self.PropDynValuesOfNow = {}
+        self.GetAllProp()
+
 
     def GetAllProp (self) :
         ''' Get all object properties (dynamic and static) '''
-        try :
-            #### IF typeObj is setted retrieve only dynamic props of this type ####
-            type_ = self.GetType()
-        except :
-            #### ELSE retrieve all dyn props ####
-            type_ = None
-        dynPropTable = Base.metadata.tables[self.GetDynPropTable()]
-        if type_ :
-            result = type_.GetDynProps()
-        else :
-            result = DBSession.execute(select([dynPropTable])).fetchall()
-        statProps = [{'name': statProp.key, 'type': statProp.type} for statProp in self.__table__.columns ]
-        dynProps = [{'name':dynProp.Name,'type':dynProp.TypeProp}for dynProp in result]
-        statProps.extend(dynProps)
-        return statProps
+        if self.allProp is None:
+            try :
+                #### IF typeObj is setted retrieve only dynamic props of this type ####
+                type_ = self.GetType()
+            except :
+                #### ELSE retrieve all dyn props ####
+                type_ = None
+            dynPropTable = Base.metadata.tables[self.GetDynPropTable()]
+            if type_ :
+                result = type_.GetDynProps()
+            else :
+                result = DBSession.execute(select([dynPropTable])).fetchall()
+            statProps = [{'name': statProp.key, 'type': statProp.type} for statProp in self.__table__.columns ]
+            dynProps = [{'name':dynProp.Name,'type':dynProp.TypeProp}for dynProp in result]
+            statProps.extend(dynProps)
+            self.allProp = statProps
+        return self.allProp
+
 
     def GetFrontModulesID (self,ModuleType) :
         if not hasattr(self,'FrontModules') :
@@ -67,6 +73,9 @@ class ObjectWithDynProp:
                 cols.append(curConf.GenerateColumn())
             elif curConf.QueryName is not None:
                 cols.append(curConf.GenerateColumn())
+            elif curConf.Name == 'StartDate':
+                cols.append(curConf.GenerateColumn())
+
         # for curProp in self.GetAllProp():
         #     curPropName = curProp['name']
         #     gridField = list(filter(lambda x : x.Name == curPropName,gridFields))
@@ -98,7 +107,7 @@ class ObjectWithDynProp:
             elif curConf.QueryName is not None:
                 filters.append(curConf.GenerateFilter())
         #### OLD VERSION ####
-        # for curProp in self.GetAllProp():
+        # for curProp in self.allProp:
         #     curPropName = curProp['name']
         #     filterField = list(filter(lambda x : x.Name == curPropName
         #         and x.IsSearchable == 1 ,filterFields))
@@ -261,6 +270,7 @@ class ObjectWithDynProp:
                     curEditable = True
 
                 resultat[CurModuleForms.Name] = CurModuleForms.GetDTOFromConf(curEditable,str(ModuleForms.GetClassFromSize(curSize)))
+                
         return resultat
 
     def GetDTOWithSchema(self,FrontModules,DisplayMode):
@@ -285,5 +295,15 @@ class ObjectWithDynProp:
             resultat['data']['id'] = self.ID
         else :
             resultat['data']['id'] = 0
+            # add default values for each field in data if exists
+            #for attr in schema:
+            for key, value in schema.items():
+                #print (key)
+                #print (value['defaultValue'])
+                if value['defaultValue'] is not None:
+                    print (key)
+                    print (value['defaultValue'])
+                    resultat['data'][key] = value['defaultValue']
+                #print (attr.defaultValue)
         return resultat
 

@@ -4,7 +4,11 @@ from ..Models import (
     Individual,
     IndividualType,
     IndividualDynPropValue,
-    IndividualDynProp
+    IndividualDynProp,
+    Individual_Location,
+    Sensor,
+    SensorType,
+    Equipment
     )
 from ecoreleve_server.GenericObjets.FrontModules import FrontModules
 from ecoreleve_server.GenericObjets import ListObjectWithDynProp
@@ -26,6 +30,7 @@ prefix = 'individuals'
 # ------------------------------------------------------------------------------------------------------------------------- #
 @view_config(route_name= prefix+'/action', renderer='json', request_method = 'GET', permission = NO_PERMISSION_REQUIRED)
 @view_config(route_name= prefix+'/id/history/action', renderer='json', request_method = 'GET', permission = NO_PERMISSION_REQUIRED)
+@view_config(route_name= prefix+'/id/equipment/action', renderer='json', request_method = 'GET', permission = NO_PERMISSION_REQUIRED)
 def actionOnIndividuals(request):
     print ('\n*********************** Action **********************\n')
     dictActionFunc = {
@@ -85,7 +90,7 @@ def getFields(request) :
     return cols
 
 # ------------------------------------------------------------------------------------------------------------------------- #
-@view_config(route_name= prefix+'/id', renderer='json', request_method = 'GET',permission = NO_PERMISSION_REQUIRED)
+@view_config(route_name= prefix+'/id', renderer='json', request_method = 'GET')
 def getIndiv(request):
     print('***************** GET INDIVIDUAL ***********************')
     id = request.matchdict['id']
@@ -99,28 +104,27 @@ def getIndiv(request):
             DisplayMode = request.params['DisplayMode']
         except : 
             DisplayMode = 'display'
+        
         Conf = DBSession.query(FrontModules).filter(FrontModules.Name=='IndivForm').first()
         response = curIndiv.GetDTOWithSchema(Conf,DisplayMode)
-    elif 'geo' in request.params :
+
+    if 'geo' in request.params :
         geoJson=[]
+        joinTable = join(Individual_Location, Sensor, Individual_Location.FK_Sensor == Sensor.ID)
+        stmt = select([Individual_Location,Sensor.UnicIdentifier]).select_from(joinTable).where(Individual_Location.FK_Individual == id)
+        dataResult = DBSession.execute(stmt).fetchall()
+        for row in dataResult:
+            geoJson.append({'type':'Feature', 'properties':{'type':row['type_'], 'sensor':row['UnicIdentifier']}, 'geometry':{'type':'Point', 'coordinates':[row['LON'],row['LAT']]}})
         result = {'type':'FeatureCollection', 'features':geoJson}
         response = result
-    #if 'geo' in request.params :
-        #geoJson=[]
-    #     stmt = select([Individual_Location]).where(Individual_Location.FK_Individual == id)
-    #     dataResult = DBSession.execute(stmt).fetchall()
-        # for row in dataResult:
-        #     geoJson.append({'type':'Feature', 'properties':{'name':row['Name']}, 'geometry':{'type':'Point', 'coordinates':[row['LON'],row['LAT']]}})
-        #result = {'type':'FeatureCollection', 'features':geoJson}
-        #response = result
-    #else : 
-        #response  = curIndiv.GetFlatObject()
+    # else : 
+    #     response  = curIndiv.GetFlatObject()
 
     transaction.commit()
     return response
 
 # ------------------------------------------------------------------------------------------------------------------------- #
-@view_config(route_name= prefix+'/id/history', renderer='json', request_method = 'GET',permission = NO_PERMISSION_REQUIRED)
+@view_config(route_name= prefix+'/id/history', renderer='json', request_method = 'GET')
 def getIndivHistory(request):
 
     #128145
@@ -146,6 +150,27 @@ def getIndivHistory(request):
     return response
 
 # ------------------------------------------------------------------------------------------------------------------------- #
+@view_config(route_name= prefix+'/id/equipment', renderer='json', request_method = 'GET')
+def getIndivEquipment(request):
+
+    id_indiv = request.matchdict['id']
+    joinTable = join(Equipment,Sensor, Equipment.FK_Sensor == Sensor.ID
+        ).join(SensorType,Sensor.FK_SensorType == SensorType.ID)
+    query = select([Equipment.StartDate,SensorType.Name.label('Type'),Sensor.UnicIdentifier,Equipment.Deploy]).select_from(joinTable
+        ).where(Equipment.FK_Individual == id_indiv).order_by(desc(Equipment.StartDate))
+    result = DBSession.execute(query).fetchall()
+    response = []
+    for row in result:
+        curRow = OrderedDict(row)
+        if curRow['Deploy'] == 1 : 
+            curRow['Deploy'] = 'Deploy'
+        else : 
+            curRow['Deploy'] = 'Remove'
+        response.append(curRow)
+
+    return response
+
+# ------------------------------------------------------------------------------------------------------------------------- #
 @view_config(route_name= prefix+'/id', renderer='json', request_method = 'DELETE',permission = NO_PERMISSION_REQUIRED)
 def deleteIndiv(request):
     id_ = request.matchdict['id']
@@ -167,7 +192,7 @@ def updateIndiv(request):
     return {}
 
 # ------------------------------------------------------------------------------------------------------------------------- #
-@view_config(route_name= prefix, renderer='json', request_method = 'POST')
+@view_config(route_name= prefix  + '/insert', renderer='json', request_method = 'POST')
 def insertIndiv(request):
     data = request.json_body
     if not isinstance(data,list):
@@ -185,8 +210,11 @@ def insertOneNewIndiv (request) :
         if value != "" :
             data[items] = value
 
-    newIndiv = Individual(FK_IndividualType = data['FK_IndividualType'], creator = request.authenticated_userid)
-    newIndiv.IndividualType = DBSession.query(IndividualType).filter(IndividualType.ID==data['FK_IndividualType']).first()
+    #newIndiv = Individual(FK_IndividualType = data['FK_IndividualType'], creator = request.authenticated_userid)
+    indivType = int(data['FK_IndividualType'])
+    print(data)
+    newIndiv = Individual(FK_IndividualType = indivType , creationDate = datetime.now(),Original_ID = '0')
+    newIndiv.IndividualType = DBSession.query(IndividualType).filter(IndividualType.ID==indivType).first()
     newIndiv.init_on_load()
     newIndiv.UpdateFromJson(data)
     print (newIndiv.__dict__)

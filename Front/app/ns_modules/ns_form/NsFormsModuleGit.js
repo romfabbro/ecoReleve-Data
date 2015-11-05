@@ -7,8 +7,10 @@ define([
 	'requirejs-text!./Templates/NsFormsModule.html',
 	'ListOfNestedModel',
 	'AutocompleteEditor',
-	//'./NsFormsCustomFields',
+	'./NsFormsCustomFields',
 	'i18n',
+	'fancytree',
+	'bbAutoComp'
 ], function ($, _, Backbone, Marionette, BackboneForm, tpl,ListOfNestedModel,AutocompleteEditor) {
 	return Backbone.View.extend({
 		BBForm: null,
@@ -19,7 +21,7 @@ define([
 		buttonRegion: null,
 		formRegion: null,
 		id: null,
-		reloadAfterSave: true,
+		reloadAfterSave: false,
 		template: tpl,
 		redirectAfterPost: "",
 
@@ -130,6 +132,12 @@ define([
 				this.redirectAfterPost = options.redirectAfterPost;
 			}
 			this.afterShow = options.afterShow;
+			if (options.afterSaveSuccess){
+				this.afterSaveSuccess = options.afterSaveSuccess ;
+			}
+			if(options.savingError) {
+				this.savingError =options.savingError;
+			}
 		},
 
 
@@ -149,7 +157,6 @@ define([
 
 			var url = this.modelurl + '/' + id;
 
-			console.log(this.modelurl);
 
 			this.name='_' + this.objectType + '_';
 
@@ -176,7 +183,6 @@ define([
 					_this.BBForm = new BackboneForm({ model: _this.model, data: _this.model.data, fieldsets: _this.model.fieldsets, schema: _this.model.schema });
 					_this.showForm();
 					_this.updateState(this.displayMode);
-					console.log(resp.schema);
 				},
 				error: function (data) {
 					console.warn('request error');
@@ -193,19 +199,22 @@ define([
 
 			this.formRegion.html(this.BBForm.el);
 
-
-			this.buttonRegion.forEach(function (entry) {
-				_this.buttonRegion[0].html(_this.template);
-				_this.buttonRegion[0].i18n();
-			});
-
 			if(this.buttonRegion[0]){
-				this.displaybuttons();
-				this.bindEvents();
+				this.buttonRegion.forEach(function (entry) {
+					_this.buttonRegion[0].html(_this.template);
+					_this.buttonRegion[0].i18n();
+				});
+
+				if(this.buttonRegion[0]){
+					this.displaybuttons();
+					this.bindEvents();
+				}
 			}
+
 			if (this.afterShow) {
 				this.afterShow();
 			}
+
 			
 
 		},
@@ -247,8 +256,6 @@ define([
 			var errors = this.BBForm.commit();
 			var jqhrx;
 
-			this.model.on('sync', function(){
-			});
 
 			if(!errors){
 					if (this.model.attributes["id"] == 0) {
@@ -323,9 +330,6 @@ define([
 
 		},
 
-		reloadAfterSave: function(){
-
-		},
 
 		butClickEdit: function (e) {
 			this.displayMode = 'edit';
@@ -377,6 +381,7 @@ define([
 		},
 
 		savingSuccess: function (model, response) {
+			console.log('plouf');
 			// To be extended, called after save on model if success
 		},
 		savingError: function (response) {

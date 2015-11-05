@@ -6,7 +6,6 @@ define([
 	'ns_stepper/lyt-newStepper',
 	'./lyt-step0',
 
-
 	'./gpx/lyt-step1-gpx',
 	'./gpx/lyt-step2-gpx',
 
@@ -16,6 +15,8 @@ define([
 	'./gsm/lyt-step1-gsm',
 	'./gsm/lyt-step2-gsm',
 
+	'./argos/lyt-step1-argos',
+
 ], function($, _, Backbone, Marionette, NewStepper, Step0,
 	Step1GPX,
 	Step2GPX,
@@ -24,7 +25,9 @@ define([
 	Step2RFID,
 
 	Step1GSM,
-	Step2GSM
+	Step2GSM,
+
+	Step1ARGOS
 ){
 
 	'use strict';
@@ -34,6 +37,7 @@ define([
 		=            Layout Stepper Orchestrator            =
 		===================================================*/
 		//dedicated to be overloaded
+
 		initSteps: function(){
 			this.steps = [Step0];
 		},
@@ -61,7 +65,9 @@ define([
 						var gsmSteps = [ Step1GSM ];
 						this.addSteps(gsmSteps, 1);
 						break;
-					case 'csv':
+					case 'argos':
+						var argosSteps = [ Step1ARGOS ];
+						this.addSteps(argosSteps, 1);
 						//this.addSteps();
 						break;
 					default:

@@ -1,4 +1,4 @@
-﻿define([
+define([
  'underscore',
  'jquery',
  'backbone',
@@ -39,7 +39,6 @@
             var $el = _.template(
                 this.template, { id: this.id,value:this.options.model.get(this.options.schema.name) }
             );
-            console.log($el);
             this.setElement($el);
             var _this = this;
             _(function () {

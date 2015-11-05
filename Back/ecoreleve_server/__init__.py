@@ -45,6 +45,11 @@ def main(global_config, **settings):
     settings['sqlalchemy.url'] = settings['cn.dialect'] + quote_plus(settings['sqlalchemy.url'])
     engine = engine_from_config(settings, 'sqlalchemy.')
     dbConfig['url'] = settings['sqlalchemy.url']
+    dbConfig['wsThesaurus'] = {}
+    dbConfig['wsThesaurus']['wsUrl'] = settings['wsThesaurus.wsUrl']
+    dbConfig['wsThesaurus']['lng'] = settings['wsThesaurus.lng']
+    dbConfig['data_schema'] = settings['data_schema']
+
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
@@ -62,8 +67,8 @@ def main(global_config, **settings):
     config.add_renderer('pdf', PDFrenderer)
     config.add_renderer('gpx', GPXRenderer)
 
-    #includeme(config)
-    #config.set_root_factory(SecurityRoot)
+    # includeme(config)
+    # config.set_root_factory(SecurityRoot)
 
     # Set the default permission level to 'read'
     config.set_default_permission('read')

@@ -11,71 +11,53 @@ define([
 	'ns_filter/model-filter',
 	'backbone_forms',
 	'requirejs-text!ns_modules/ns-bbforms-editors/IndividualPicker/tpl-individual.html',
-	//'requirejs-text!./tpl-individual.html',
 ], function(
 	$, _, Backbone, Marionette, Swal, Translater, config,
 	Com, NsGrid, NsFilter, Form, Tpl
 ){
 	'use strict';
-	return Form.editors.IndividualPickerEditor = Form.editors.Base.extend({
-		previousValue: '',
+	return Form.editors.IndividualPicker = Form.editors.Base.extend({
 
-
-		
-		/*
-		hasChanged: function(currentValue) {
-			if (currentValue !== this.previousValue){
-				this.previousValue = currentValue;
-				this.trigger('change', this);
-			}
-		},
-
-		initialize: function(options) {
-			console.log('options',options);
-			Form.editors.Base.prototype.initialize.call(this, options);
-			this.template = options.template || this.constructor.template;
-			this.options = options;
-			console.log('this',this);
-			console.log('options',options);
-			this._input = $('<input type="text" />');
-
-
-
-		},
-
-		getValue: function() {
-			return  this._input.val();
-		},
-
-		setValue: function(value) {
-
-		},
-
-		render: function(){
-			var options = this.options;
-			var schema = this.schema;
-			var $el = $($.trim(this.template()));
-
-			this.$el.append(this._input);
-
-			return this;
-		}*/
-		//template: 'app/ns-modules/ns-bbforms-editors/IndividualPicker/tpl-individual.html',
 		className: 'full-height animated white',
 		events: {
-            'click span.picker': 'showPicker',
-            'click #btnFilter' : 'filter',
-            'click .filterCancel' : 'hidePicker'
+			'click span.picker': 'showPicker',
+			'click #btnFilter' : 'filter',
+			'click .cancel' : 'hidePicker',
 		},
 
-		initialize: function(options) {
+		ui: {
+			'filters': '#filter'
+		},
 
-			console.log('options',options);
-			Form.editors.Base.prototype.initialize.call(this, options);
-			var template =  _.template(Tpl);
+		pickerType: 'individual',
+		url : config.coreUrl+'individuals/',
+
+		initialize: function(options) {
+			//Form.editors.Base.prototype.initialize.call(this, options);
+			
+			this.model = new Backbone.Model();
+
+			this.model.set('pickerType', this.pickerType);
+
+			var value = options.model.get(options.schema.name);
+			if(value){
+				this.model.set('value', value);
+			}else{
+				this.model.set('value', '');
+			}
+
+			if(options.schema.editable){
+				this.model.set('disabled', '');
+				this.model.set('visu', '');
+			}else{
+				this.model.set('disabled', 'disabled');
+				this.model.set('visu', 'hidden');
+			}
+
+			var template =  _.template(Tpl, this.model.attributes);
 			this.$el.html(template);
 			this.com = new Com();
-			this._input = this.$el.find('input[name="indivpicker"]')[0];
+			this._input = this.$el.find('input[name="' + this.pickerType + '"]')[0];
 			this.displayGrid();
 			this.displayFilter();
 			this.translater = Translater.getTranslater();
@@ -84,20 +66,19 @@ define([
 		displayGrid: function(){
 			var _this = this;
 			this.grid = new NsGrid({
-				pageSize: 10,
+				pageSize: 20,
 				pagingServerSide: true,
 				com: this.com,
-				url: config.coreUrl+'individuals/',
+				url: this.url,
 				urlParams : this.urlParams,
 				rowClicked : true,
-				totalElement : 'indiv-count'
 			});
 
-			this.grid.rowClicked = function(row){
-				_this.rowClicked(row);
+			this.grid.rowClicked = function(args){
+				_this.rowClicked(args.row);
 			};
-			this.grid.rowDbClicked = function(row){
-				_this.rowDbClicked(row);
+			this.grid.rowDbClicked = function(args){
+				_this.rowDbClicked(args.row);
 			};
 			
 			var gridCont = this.$el.find('#grid')[0];
@@ -105,11 +86,12 @@ define([
 			var paginatorCont = this.$el.find('#paginator')[0];
 			$(paginatorCont).html(this.grid.displayPaginator());
 		},
+
 		displayFilter: function(){
 			this.filters = new NsFilter({
-				url: config.coreUrl + 'individuals/',
+				url: this.url,
 				com: this.com,
-				filterContainer: 'filter',
+				filterContainer: this.$el.find('#filter'),
 			});
 		},
 		filter: function(e){
@@ -129,20 +111,14 @@ define([
 			return  $(this._input).val();
 		},
 		setValue: function(value) {
-			$(this._input).val(value);
+			$(this._input).val(value).change();
 			this.hidePicker();
 		},
 		showPicker : function(){
-			var modal = this.$el.find('#myModal')[0];
-			$(modal).addClass('in');
-			$(modal).css('display','block');
-			$('body').append('<div class="modal-backdrop fade in"></div>');
+			this.$el.find('#modal-outer').fadeIn('fast');
 		},
 		hidePicker : function(){
-			var myModal = this.$el.find('#myModal')[0];
-			$(myModal).hide();
-			$(myModal).attr('aria-hidden', true);
-			$('div.modal-backdrop.fade.in').remove();
+			this.$el.find('#modal-outer').fadeOut('fast');
 		}
 	}
 	);

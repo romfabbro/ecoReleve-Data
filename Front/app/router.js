@@ -11,15 +11,27 @@ define(['jquery', 'marionette', 'backbone', 'config', 'controller'],
 			'importFile(/)': 'importFile',
 
 			'individual(/)' : 'individual',
-			'individual(/):id' : 'individual',
+			'individual(/):id(/)' : 'individual',
+			'individual/new(/):id(/)': 'newIndividual',
 
 			'stations(/)' : 'stations',
-			'newStation(/)': 'newStation',
-			'editStations(/)': 'editStations',
-			'station(/):id': 'station',
-			'sensor(/)' : 'sensor',
-			'*route(/:page)': 'home',
+			'stations/new(/)': 'newStation',
+			'stations(/):id(/)': 'stations',
 
+			'sensor/new(/):id(/)' : 'newSensor',
+			'sensor(/)' : 'sensor',
+
+			'monitoredSite(/)' : 'monitoredSite',
+			'monitoredSite/new(/)' : 'newMonitoredSite',
+			'monitoredSite(/):id(/)' : 'monitoredSite',
+
+			'validate/:type(/)':'validateType',
+			'validate(/)':'validate',
+
+			'release(/)':'release',
+
+
+			'*route(/:page)': 'home',
 		},
 
 		execute: function(callback, args){
@@ -29,7 +41,12 @@ define(['jquery', 'marionette', 'backbone', 'config', 'controller'],
 			}).done( function() {
 				callback.apply(this, args);
 			}).fail( function(msg) {
-				document.location.href='http://127.0.0.1/NsPortal/Front'; 
+				console.log(msg) ;
+				if (msg.status === 403) {
+					document.location.href='http://127.0.0.1/NsPortal/Front'; 
+                }
+				
+				//
 			});
 		},
 

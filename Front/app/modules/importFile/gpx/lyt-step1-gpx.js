@@ -12,7 +12,7 @@ define([
 	'models/gpxForm',
 	'FileUploadEditor',
 	'i18n',
-	'IndivPicker',
+
 
 ], function($, _, Backbone, Marionette, config, Swal, XmlParser,NsForm , GpxForm, FileEditor
 ){
@@ -142,7 +142,6 @@ define([
 			this.wayPointList.each(function(model) {
 				model.set('fieldActivity', fieldActivity);
 			});
-			console.log(this.model);
 		},
 		onDestroy: function(){
 		},
@@ -256,7 +255,6 @@ define([
 			this.wayPointList.each(function(model) {
 				model.set('FieldWorkers', users);
 			});
-			console.log(this.wayPointList);
 		},
 	});
 });

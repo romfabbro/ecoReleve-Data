@@ -3,36 +3,56 @@ define(['marionette', 'config',
 	'./base/home/lyt-home',
 
 	/*==========  modules  ==========*/
-	'./modules/export/layouts/export-layout',
 
-	'./modules/stations/visu/lyt-stations',
-	'./modules/stations/edit/lyt-station-stepper-edit',
-	'./modules/stations/new/lyt-station-stepper-new',
-	'./modules/stations/manager/lyt-station-manager',
+	'./modules/stations/layouts/lyt-stations',
+	'./modules/stations/layouts/lyt-station-new',
 
 	'./modules/importFile/lyt-entry-importFile',
 	'./modules/individual/layouts/lyt-individual',
+	'./modules/individual/layouts/lyt-new-individual',
 	'./modules/individual/layouts/lyt-indiv-details',
+
 	'./modules/sensor/layouts/lyt-sensor',
+	'./modules/sensor/layouts/lyt-sensor-new',
 	
+	'./modules/monitoredSite/layouts/lyt-ms',
+	'./modules/monitoredSite/layouts/lyt-new-site',
+	'./modules/validate/lyt-sensorValidate',
+	'./modules/validate/lyt-sensorValidateType',
+	'./modules/validate/lyt-sensorValidateDetail',
+	'./modules/release/layouts/lyt-release-station',
+
+	'./modules/export/lyt-export-stepper',
 
 ],function( Marionette, config, 
 	LytHome,
 
 	/*==========  modules  ==========*/
-	LytExport,
 
-	LytStationVisu,
-	LytStationStepperEdit,
-	LytStationStepperNew,
-	LytStationEdit,
+	LytStations,
+	LytStationsNew,
 
 	LytImportFile,
 	LytIndividual,
+	LytIndividualNew,
 	LytIndivDetails,
-	LytSensor
+	
+	LytSensor,
+	LytSensorNew,
+
+	LytMonitoredSite,
+	LytMonitoredNew,
+	LytSensorValidate,
+	LytSensorValidateType,
+	LytSensorValidateDetail,
+
+	LytReleaseStation,
+
+	LytExport
+
 ){
 	'use strict';
+
 	return Marionette.Object.extend({
 
 		initialize: function(){
@@ -41,41 +61,62 @@ define(['marionette', 'config',
 			this.rgFooter=window.app.rootView.rgFooter;
 		},
 
-
 		home: function() {
 			Backbone.history.navigate('');
 			this.rgMain.show(new LytHome());
 		},
-		export: function(){
-			this.rgMain.show(new LytExport());
-		},
+
 		importFile: function(){
 			this.rgMain.show(new LytImportFile());
 		},
 
-		stations: function(){
-			this.rgMain.show(new LytStationVisu());
+		stations: function(id){
+			this.rgMain.show(new LytStations({id : id}));
 		},
 
 		newStation: function(){
-			this.rgMain.show(new LytStationStepperNew());
-		},
-		editStations: function(){
-			this.rgMain.show(new LytStationStepperEdit());
+			this.rgMain.show(new LytStationsNew());
 		},
 
-		station: function(option){
-			this.rgMain.show(new LytStationEdit({id: option}));
+		individual : function(id){
+			this.rgMain.show(new LytIndividual({id : id}));
+		},
+
+		newIndividual : function(type){
+			this.rgMain.show(new LytIndividualNew({type : type}));
+		},
+
+		sensor : function(id){
+			this.rgMain.show(new LytSensor({id: id}));
+		},
+
+		newSensor: function(type){
+			this.rgMain.show(new LytSensorNew({type : type}));
+		},
+
+		monitoredSite: function(id){
+			this.rgMain.show(new LytMonitoredSite({id: id}));
+		},
+		newMonitoredSite : function(type){
+			this.rgMain.show(new LytMonitoredNew());
+		},
+
+		validate: function(){
+			this.rgMain.show(new LytSensorValidate());
+		},
+
+		validateType: function(type){
+			this.rgMain.show(new LytSensorValidateType({
+				type : type
+			}));
+		},
+
+		release: function(){
+			this.rgMain.show(new LytReleaseStation());
 		},
 		
-		individual : function(option){
-			this.rgMain.show(new LytIndividual({id : option}));
-		},
-		indiv : function(option){
-			this.rgMain.show(new LytIndividual({id: option}));
-		},
-		sensor : function(option){
-			this.rgMain.show(new LytSensor({id: option}));
+		export: function(){
+			this.rgMain.show(new LytExport());
 		},
 
 	});

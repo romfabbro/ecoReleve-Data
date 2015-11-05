@@ -18,8 +18,27 @@ main{
 .white{
 	background: white;
 }
+
+.black{
+	background: black;
+}
+
 .color-white{
 	color: white;
+}
+
+.outer-left{
+	position: relative;
+	left: -100%;
+}
+
+.outer-right{
+	position: relative;
+	right: -100%;
+}
+
+.oh{
+	overflow: hidden;
 }
 
 .btn-circle{
@@ -29,6 +48,10 @@ main{
 	color: white;
 	margin: 0px 15px;
 
+}
+
+.layer{
+	background: rgba(255,255,255, 0.7);
 }
 
 .rel{
@@ -61,10 +84,14 @@ a{
 		text-decoration: none;
 		color: inherit;
 	}
+	&.whitev:visited{
+		color: white;
+	}
 }
 
 .no-padding, .ns-no-padding{
-	padding: 0px;
+	padding: 0px!important;
+
 }
 .full-height, .ns-full-height{
 	overflow: auto;
@@ -74,25 +101,22 @@ a{
 	height: 50%;
 }
 
-/* .displayInput {
-    padding-left: 0;
-    padding-top: 0;
-    background: none!important;
-    border: none;
-    box-shadow: none;
-    color: #f3f3f3;
-} */
-//???
-
-.tab-content.all-stations {
-	height: 0;
+span.bull-warn{
+	color: rgb(208, 2, 27);
+	padding: 5px;
+	font-size: 1.3em;
 }
 
-@media (max-width: @screen-md-min) {
+//???
+/* .tab-content.all-stations {
+	height: 0;
+} */
+
+/* @media (max-width: @screen-md-min) {
 	.full-height{
 		height: auto;
 	}
-}
+} */
 
 
 
@@ -121,7 +145,7 @@ li.list-group-item{
 	margin: 5px;
 }
 ::-webkit-scrollbar{
-	background: @gray-lighter;
+	background: #ccc;
 	width: 10px;
 	height: 10px;
 	margin: 5px;
@@ -167,23 +191,8 @@ li.list-group-item{
     	width: 1200px;
 	}
 }
-#indivRight {
-	overflow-x: auto;
-	overflow-y: scroll; 
-}
-#showIndivDetails {
-    padding: 25px 10px;
-    cursor: pointer;
-    text-align: center;
-    position: fixed;
-    width: 50px;
-    z-index: 100000;
-    background: #1a1a1a;
-    height: 100%;
-    transition: opacity .2s ease;
-    opacity: 1;
-    color: #A3A1A1;
-}
+
+
 .rotate {
     display: block;
     position: absolute;
@@ -195,14 +204,16 @@ li.list-group-item{
     -o-transform: rotate(-90deg);
     transform: rotate(-90deg);
 }
-#hideIndivDetails {
-    float: right;
-}
-#hideIndivDetails:hover {
-    cursor: pointer;
-}
+
 textarea {
     resize: none;
 }
 
+.circle{
+	border: 2px solid;
+    background: transparent;
+    border-radius: 100%;
+    padding: 5px;
+    font-weight: bolder;
+}
 

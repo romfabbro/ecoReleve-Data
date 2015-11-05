@@ -5,8 +5,12 @@ header{
 	position: fixed;
 	width: 100%;
 	max-height: 50px;
-	overflow: hidden;
 	font-weight: 400; 
+
+
+	overflow: hidden;
+
+
 	a#logout{
 		cursor: pointer;
 	}
@@ -22,7 +26,11 @@ header{
 		}
 	}
 	.navbar-brand{
-		
+		color: white;
+		&:focus, &:hover{
+			background: @header-hover;
+			color: white;
+		}
 	}
 	#header-loader{
 		svg{

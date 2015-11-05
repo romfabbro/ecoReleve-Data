@@ -8,8 +8,10 @@ define([
 	'radio',
 	'moment',
 	'vendors/backboneForm-editor-dateTimePicker',
-	'vendors/backboneForm-editor-autoCompTree',
+	'vendors/backboneForm-editor-timePicker',
+	//'vendors/backboneForm-editor-autoCompTree',
 	'vendors/backboneForm-editor-Number',
+	
 
 ], function ($, _, Backbone, BbForms, tpl, tplcheck, Radio, moment) {
 	'use strict';
@@ -27,7 +29,6 @@ define([
 
 		initialize: function (options) {
 			this.filterContainer = options.filterContainer
-
 			this.clientSide = options.clientSide;
 			this.name = options.name || '';
 			this.com = options.com;
@@ -76,14 +77,14 @@ define([
 			var form;
 			for (var key in data) {
 				form = this.initFilter(data[key]);
-				$('#' + this.filterContainer).append(form.el);
+				this.filterContainer.append(form.el);
 				if (data[key].type == 'Checkboxes') {
-					$('#' + this.filterContainer).find("input[type='checkbox']").each(function () {
+					this.filterContainer.find('input[type="checkbox"]').each(function () {
 						$(this).prop('checked', true);
 					});
 				}
-				$('#' + this.filterContainer + " input[type='checkbox']").on('click', this.clickedCheck);
-				$('#' + this.filterContainer + " form").on('keypress',  $.proxy(this.updateQuery, this));
+				this.filterContainer.find('input[type="checkbox"]').on('click', this.clickedCheck);
+				this.filterContainer.find('form').on('keypress',  $.proxy(this.updateQuery, this));
 
 				this.forms.push(form);
 			};
@@ -239,7 +240,10 @@ define([
 			var currentForm, value;
 			for (var i = 0; i < this.forms.length; i++) {
 				currentForm = this.forms[i];
-				if (!currentForm.validate() && currentForm.getValue().Value) {
+
+				var type = typeof currentForm.getValue().Value;
+
+				if (!currentForm.validate() && (currentForm.getValue().Value || type == 'number')) {
 					value = currentForm.getValue();
 					filters.push(value);
 					currentForm.$el.find('input.filter').addClass('active');
@@ -248,6 +252,7 @@ define([
 				};
 			};
 			this.criterias = filters;
+
 			if (this.clientSide) {
 				this.clientFilter(filters);
 			}else{
@@ -256,7 +261,7 @@ define([
 		},
 
 		reset: function () {
-			$('#' + this.filterContainer).empty();
+			this.filterContainer.empty();
 			if (this.clientSide) {
 				this.initFilters(this.filters);
 			}
@@ -429,7 +434,6 @@ define([
 			return;
 		},
 		updateQuery : function(e){
-			console.log(this);
 			if (e.keyCode === 13) {
 				e.preventDefault();
 				this.update();

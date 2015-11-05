@@ -1,4 +1,4 @@
-from ecoreleve_server.Models import Base,DBSession
+from ecoreleve_server.Models import Base,DBSession, dbConfig
 from sqlalchemy import Column, DateTime, Float,Boolean, ForeignKey, Index, Integer, Numeric, String, Text, Unicode, text,Sequence,orm,and_,text,select
 from sqlalchemy.dialects.mssql.base import BIT
 from sqlalchemy.orm import relationship
@@ -45,6 +45,7 @@ class ModuleForms(Base):
     Legend = Column(Unicode(500))
     Options = Column (String)
     Validators = Column(String)
+    DefaultValue = Column(String)
 
     FrontModules = relationship("FrontModules", back_populates="ModuleForms")
 
@@ -55,16 +56,20 @@ class ModuleForms(Base):
     def GetDTOFromConf(self,IsEditable,CssClass):
         ''' return input field to build form '''
         self.dto = {
-            'Name': self.Name,
+            'name': self.Name,
             'type': self.InputType,
             'title' : self.Label,
             'editable' : IsEditable,
             'editorClass' : str(self.editorClass) ,
             'validators': [],
-            'options': []
+            'options': [],
+            'defaultValue' : None
             }
         self.CssClass = CssClass
         self.IsEditable = IsEditable
+        validators = self.Validators
+        if validators is not None:
+            self.dto['validators'] = json.loads(validators)
 
         if self.Required == 1 :
             if self.InputType=="Select":
@@ -83,7 +88,11 @@ class ModuleForms(Base):
 
         if self.InputType in self.func_type_context :
             self.func_type_context[self.InputType](self)
-        print (self.dto)
+        # default value
+        default  = self.DefaultValue
+        if default is not None:
+            self.dto['defaultValue'] = default
+
         return self.dto
 
     def InputSelect (self) :
@@ -122,9 +131,10 @@ class ModuleForms(Base):
                 pass
 
     def InputThesaurus(self) :
-        # TODO : thesaurus url in development.ini
+
         if self.Options is not None and self.Options != '' :
-            self.dto['options'] = {"startId":self.Options,"wsUrl":"http://192.168.1.199/ThesaurusCore","lng":"fr"}
+            self.dto['options'] = {'startId': self.Options, 'wsUrl':dbConfig['wsThesaurus']['wsUrl'], 'lng':dbConfig['wsThesaurus']['lng']}
+            self.dto['options']['startId'] = self.Options
 
     def InputAutocomplete(self):
         if self.Options is not None and self.Options != '':
@@ -179,7 +189,7 @@ class ModuleGrids (Base) :
         ''' return grid field to build Grid '''
         column = {
         'name' :self.FKName(),
-        'label' : self.Label,
+        'label' : '| '+self.Label,
         'renderable': isRenderable(self.GridRender),
         'editable': isEditable(self.GridRender),
         'cell' : self.CellType,

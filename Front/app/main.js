@@ -1,7 +1,7 @@
 require.config({ 
 	baseUrl: 'app',
 	paths : {
-		
+
 
 		'tmp'				: './tmp',
 
@@ -25,13 +25,18 @@ require.config({
 		'ns_grid'		: 'ns_modules/ns_grid',
 		'ns_map'		: 'ns_modules/ns_map',
 		'ns_stepper'	: 'ns_modules/ns_stepper',
+		'ns_navbar'	: 'ns_modules/ns_navbar',
 		'FileUploadEditor': 'ns_modules/ns-bbforms-editors/FileUploadEditor/backboneForm-editors-fileUpload',
+
+		//circular dependencies
 		'IndivPicker'	: 'ns_modules/ns-bbforms-editors/IndividualPicker/backboneForm-editors-individualPicker',
+		'MonitoredSitePicker'	: 'ns_modules/ns-bbforms-editors/MonitoredSitePicker/backboneForm-editors-monitoredSitePicker',
+		'SensorPicker'	: 'ns_modules/ns-bbforms-editors/SensorPicker/backboneForm-editors-SensorPicker',
 
 		
-		'autocompTree' 			: 'vendors/jquery.autocompTree',
+		
 		'ListOfNestedModel' 	: 'vendors/ListOfNestedModel/ListOfNestedModel',
-		'AutocompleteEditor'	: 'vendors/AutocompleteEditor',
+		'AutocompleteEditor'	: '../externalModules/NaturalJS-BackBone-Forms-Editors/Autocomplete/AutocompleteEditor',
 
 		/*==========  Bower  ==========*/
 		'jquery'				: '../bower_components/jquery/jquery',
@@ -77,7 +82,10 @@ require.config({
 
 
 		'bbDate': 'vendors/backboneForm-editors',
-		'bbAutoComp': 'vendors/backboneForm-editors-autoCompTree'
+		'bbAutoComp': '../externalModules/NaturalJS-BackBone-Forms-Editors/ThesaurusEditor/backboneForm-editors-autocompTree',
+		'autocompTree' : '../externalModules/NaturalJS-BackBone-Forms-Editors/ThesaurusEditor/AutoCompletTree/jquery.autocompTree',
+		'tooltipster': '../bower_components/tooltipster/js/jquery.tooltipster.min',
+    'tooltipster-list': '../bower_components/tooltipster-list/dist/js/tooltipList',
 	},
 
 
@@ -152,13 +160,14 @@ require.config({
 			exports : 'SimplePagination'
 		},
 		fancytree :  {
-			deps:['jqueryui'],
+			deps:['jquery','jqueryui'],
 			exports : 'Fancytree'
 		},
 		autocompTree : {
 			deps:['fancytree'],
-			exports : 'AutocompTree'
+			exports : 'autocompTree'
 		},
+
 		fuelux:{
 			deps:['jquery','bootstrap'],
 			exports: 'Fuelux'
@@ -188,7 +197,20 @@ require.config({
              'backbone_forms'
             ],
             exports: 'FileUploadEditor' 
-        }
+        },
+        tooltipster: {
+            deps: [
+                'jquery'
+            ],
+            exports: '$'
+        },
+        'tooltipster-list': {
+            deps: [
+                'jquery',
+                'tooltipster'
+            ],
+            exports: '$'
+        },
 	},
 });
 

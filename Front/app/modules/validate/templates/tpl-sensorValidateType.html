@@ -1,0 +1,35 @@
+
+<div class="clearfix full-height">
+	<div class="col-md-12 full-height dark">
+		<br>
+			<legend class="clearfix">
+				<button id="back" class="btn pull-left col-">
+					<i class="reneco reneco-back"></i>
+					Back
+				</button>
+				<div class="col-xs-3">
+					<select id="frequency" class="form-control">
+						<option value="none" disabled selected>Select a frequency</option>
+						<option value="all">all</option>
+						<option value="10">10 min</option>
+						<option value="15">15 min</option>
+						<option value="30">30 min</option>
+						<option value="60">60 min</option>
+						<option value="120">120 min</option>
+					</select>
+				</div>
+
+				<button id="autoValidate" class="btn btn-success pull-right">
+					Validate
+				</button>
+				<span class="pull-right col-xs-3 text-right">Validate total: 
+					<span id="totalEntriesType"></span>
+				</span>
+			</legend>
+			<div id="paginator"></div>
+		<br>
+		<div id="grid"></div>
+	</div>
+</div>
+
+<div id="detail" class="hidden detail full-height"></div>
