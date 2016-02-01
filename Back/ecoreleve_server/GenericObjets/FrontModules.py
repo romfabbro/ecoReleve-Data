@@ -94,7 +94,8 @@ class ModuleForms(Base):
                 curInputType = 'Text'
                 self.fullPath = True
 
-        CssClass = FieldSizeToClass[curSize]
+        # CssClass = FieldSizeToClass[curSize]
+        CssClass = 'col-md-'+str(curSize)
 
         self.dto = {
             'name': self.Name,
@@ -111,6 +112,12 @@ class ModuleForms(Base):
 
         if self.Validators is not None:
             self.dto['validators'] = json.loads(self.Validators)
+
+        if self.Options is not None:
+            try:
+                self.dto['options'] = json.loads(self.Options)
+            except:
+                pass
 
         if self.Required == 1 :
             if self.InputType=="Select":
@@ -205,7 +212,7 @@ class ModuleForms(Base):
         'Select': InputSelect,
         'ListOfNestedModel' : InputLNM,
         'AutocompTreeEditor' : InputThesaurus,
-        'AutocompleteEditor': InputAutocomplete
+        'AutocompleteEditor': InputAutocomplete,
         }
 
 
@@ -270,11 +277,18 @@ class ModuleGrids (Base) :
             'name' : self.Name,
             'type' : self.FilterType,
             'label' : self.Label,
+            'title' : self.Label,
             'editable' : isEditable(int(self.FilterRender)),
             # 'editorClass' : str(self.FilterClass) ,
             'validators': [],
-            'options': [],
+            'options': [] ,
             }
+
+        try :
+            filter_['options'] = json.loads(self.Options)
+        except :
+            filter_['options'] = self.Options
+
         if (self.FilterClass) : 
             filter_['fieldClass'] = self.FilterClass+ ' ' + FieldSizeToClass[self.FilterSize] 
         else :  
