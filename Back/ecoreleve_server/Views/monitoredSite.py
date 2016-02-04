@@ -193,9 +193,9 @@ def updateMonitoredSite(request):
         curMonitoredSite.UpdateFromJson(data)
         response = {}
 
-    except Exception as e:
+    except IntegrityError as e:
         print('\n\n\n *****IntegrityError errrroorr') 
-        transaction.abort()
+        session.rollback()
         response = request.response
         response.status_code = 510
         response.text = "IntegrityError"

@@ -1,33 +1,18 @@
-/*  
-
-Use in order to add New type Of individual : Non Identified Individual 
-*/ 
+/****** Script de la commande SelectTopNRows à partir de SSMS  ******/
 
 
-/* insert new type of individual */
-INSERT INTO [dbo].[IndividualType]
-           ([Name]
-           ,[Status])
-     VALUES
-           ('Non Identified'
-           ,4)
-GO
+  DELETE IndividualType_IndividualDynProp 
+  where FK_IndividualType = 2 
 
-
-/* insert new DynProp */
-INSERT INTO dbo.IndividualDynProp (
+  INSERT INTO dbo.IndividualDynProp (
 	Name,
 	TypeProp)
 
 VALUES 
-('Transmitter_Shape',
- 'String'),
- ('Transmitter_Model','String'),
  ('Transmitter_Frequency','Integer')
 GO
 
 
-/* link dynProp with new type */
 DECLARE @typeID int ;
 DECLARE @shapeID int ;
 DECLARE @modelID int;
@@ -54,8 +39,6 @@ VALUES
 (@freq,@typeID,1)
 
 GO
-
-
 WITH IdDynPropStandardIndiv AS (
 SELECT dp.ID,dp.Name 
 FROM IndividualDynProp dp
@@ -67,14 +50,12 @@ WHERE NOT EXISTS (SELECT *
 				) 
 )
 
-/* Insert new Conf Grid& filter */ 
 UPDATE g SET TypeObj = 1
 FROM ModuleGrids g
 WHERE Name in (SELECT Name FROM IdDynPropStandardIndiv 
 					) OR Name in ('frequency','FK_Sensor','Status_','ID')
 AND Module_ID = 8 
 GO
-
 delete  [ModuleGrids] where Module_ID = 8 and TypeObj = 2 
 
 INSERT INTO [dbo].[ModuleGrids]
@@ -309,9 +290,61 @@ INSERT INTO [dbo].[ModuleGrids]
 
 GO
 
+UPDATE [EcoReleve_ECWP].[dbo].[ModuleForms] 
+set Options = '{"title":"Individuals","url":"individuals", "typeObj":[{"Standard":1},{"Non Identified":2}]}',
+  InputType = 'NonIdPicker', Label = 'Individual ID/Non ID'
+where TypeObj = 214 and Name = 'FK_Individual'
 
 
-INSERT INTO [dbo].[TVersion] (TVer_FileName,TVer_Date,TVer_DbName) VALUES ('6_Create_Conf_NonIdentified_Individual',GETDATE(),(SELECT db_name()))
+UPDATE ModuleForms SET FieldSizeEdit = FieldSizeDisplay
+where module_id = 9 
+
+UPDATE  ModuleForms SET FieldSizeEdit = 4, FieldSizeDisplay = 4  
+where module_id = 9 and (Name like 'Release%color' or Name Like 'Breeding%color' or Name Like 'Mark%color%')
+
+UPDATE  ModuleForms SET FieldSizeEdit = 3, FieldSizeDisplay = 3  
+where module_id = 9 and (Name like 'Release%code' or Name Like 'Breeding%code' or Name Like 'Mark%code%')
+
+UPDATE  ModuleForms SET FieldSizeEdit = 5, FieldSizeDisplay = 5  
+where module_id = 9 and (Name like 'Release%position' or Name Like 'Breeding%position' or Name Like 'Mark%position%')
+
+UPDATE  ModuleForms SET FormOrder = 100, Legend = NULL
+where module_id = 9 and Name = 'Comments'
+
+UPDATE  ModuleForms SET FormRender = 1 , EditClass = NULL
+where module_id = 9 and Name ='ID'
+GO
+
+UPDATE ModuleForms SET FieldSizeEdit = FieldSizeDisplay
+where module_id = 2 
+
+UPDATE ModuleForms SET FieldSizeEdit = 3 ,FieldSizeDisplay=3
+where module_id = 12 and Name In ('LAT','LON')
+
+UPDATE ModuleForms SET FormOrder = 10
+where module_id = 12 and Name = 'Comments'
+
+INSERT INTO ModuleForms (
+[module_id]
+      ,[TypeObj]
+      ,[Name]
+      ,[Label]
+      ,[Required]
+      ,[FieldSizeEdit]
+      ,[FieldSizeDisplay]
+      ,[InputType]
+      ,[editorClass]
+      ,[FormRender]
+      ,[FormOrder]
+      ,[Legend]
+    )
+VALUES (12,NULL,'ELE','Elevation',0,3,3,'Number','form-control',2,4,'Location Infos'),
+(12,NULL,'Precision','Precision',0,3,3,'Number','form-control',2,5,'Location Infos') 
+
+
+GO
+
+INSERT INTO [dbo].[TVersion] (TVer_FileName,TVer_Date,TVer_DbName) VALUES ('19_Correction_06_Conf_NonIdentified_Individual',GETDATE(),(SELECT db_name()))
 
 
 GO
