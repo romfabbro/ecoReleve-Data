@@ -194,7 +194,7 @@ define([
           order_by: function () {
             var criteria = [];
             for (var crit in this.sortCriteria) {
-              criteria.push(crit + '=' + this.sortCriteria[crit]);
+              criteria.push(crit + ':' + this.sortCriteria[crit]);
 
             }
             return JSON.stringify(criteria);
@@ -209,8 +209,10 @@ define([
             'criteria': this.queryParams.criteria.call(this),
           };
 
-
-          if (_this.typeObj && options.data) {
+          if (_this.typeObj) {
+            if (!options.data) {
+              options.data = params
+            }
             options.data.typeObj = _this.typeObj;
           }
 

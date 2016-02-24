@@ -312,15 +312,16 @@ class ModuleGrids (Base) :
             , 'lng':threadlocal.get_current_request().authenticated_userid['userlanguage']
             ,'displayValueName': 'valueTranslated'}
             filter_['options']['startId'] = self.Options
+            filter_['options']['ValidationRealTime'] = False
 
         if self.FilterType=='AutocompleteEditor' and  self.Options is not None and self.Options != '':
             option = json.loads(self.Options)
-            filter_['options']= {'source':[]}
             if 'SELECT' in option['source']:
+                filter_['options']= {'source':[]}
                 result = self.session.execute(text(option['source'])).fetchall()
                 for row in result:
                     filter_['options']['source'].append(row[0])
             else : 
-                filter_['options'] = {'source': option['source'],'minLength' :option['minLength']}
+                filter_['options'] = filter_['options']
 
         return filter_

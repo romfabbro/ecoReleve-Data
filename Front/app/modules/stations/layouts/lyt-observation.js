@@ -59,11 +59,17 @@ define([
         reloadAfterSave: true,
         objectType: this.objectType,
         savingError: function (response) {
-          // individual equipment sensor is not available
-          if(response.responseJSON.sensor_available == false){
+          console.log(response.responseJSON)
+           // individual equipment sensor is not available
+           if(response.responseJSON.sensor_available == false){
             _this.sweetAlert('Data saving error', 'error', 'Selected sensor is not available');
-          }
-      
+           }
+           else if(response.responseJSON.already_unequip == true ){
+            _this.sweetAlert('Data saving error', 'error', 'Selected sensor is already unequiped');
+           }
+           else if(response.responseJSON.existing_equipment == false ){
+            _this.sweetAlert('Data saving error', 'error', 'Selected sensor is not equiped with this individual');
+           }
         }
       });
 

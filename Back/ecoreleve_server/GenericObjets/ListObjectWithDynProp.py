@@ -188,24 +188,21 @@ class ListObjectWithDynProp():
                 )
         else:
             #try :
-            curDynProp = None
-            for x in self.ObjWithDynProp().GetAllProp():
-                if x['name'] == curProp:
-                    curDynProp = x
+            curDynProp = self.GetDynProp(curProp)
             if curDynProp == None:
                 # print(curProp)
                 print('Prop dyn inconnue')
                     # Gerer l'exception
             else :
-                viewAlias = self.vAliasList['v'+curDynProp['name']]
-                if 'date' in curDynProp['type'].lower() :
+                viewAlias = self.vAliasList['v'+curDynProp['Name']]
+                if 'date' in curDynProp['TypeProp'].lower() :
                     try:
                         criteriaObj['Value'] = parse(criteriaObj['Value'].replace(' ',''))
                     except:
                         pass
                       #### Perform the'where' in dyn props ####
                 query = query.where(
-                eval_.eval_binary_expr(viewAlias.c['Value'+curDynProp['type']],criteriaObj['Operator'],criteriaObj['Value']))
+                eval_.eval_binary_expr(viewAlias.c['Value'+curDynProp['TypeProp']],criteriaObj['Operator'],criteriaObj['Value']))
         return query
 
     def GetFullQuery(self,searchInfo=None) :
@@ -306,15 +303,16 @@ class ListObjectWithDynProp():
 
                     filterCriteria = eval_.eval_binary_expr(self.GetDynPropValueView().c['Value'+curDynProp['TypeProp']],obj['Operator'],obj['Value'] )
                     if filterCriteria is not None :
+                        existQuery = select([self.GetDynPropValueView()])
                         existQuery = existQuery.where(
                             and_(
                             self.GetDynPropValueView().c['Name'] == obj['Column'],
                             filterCriteria
                             ))
 
-            if filterOnDynProp == True:
-                fullQuery = fullQuery.where(exists(
-                    existQuery.where(self.ObjWithDynProp.ID == self.GetDynPropValueView().c[self.ObjWithDynProp().GetSelfFKNameInValueTable()])))
+                    if filterOnDynProp == True:
+                        fullQuery = fullQuery.where(exists(
+                            existQuery.where(self.ObjWithDynProp.ID == self.GetDynPropValueView().c[self.ObjWithDynProp().GetSelfFKNameInValueTable()])))
         return fullQuery
 
     def OderByAndLimit (self, query, searchInfo) :
