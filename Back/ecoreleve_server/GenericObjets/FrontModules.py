@@ -217,6 +217,7 @@ class ModuleForms(Base):
     func_type_context = {
         'Select': InputSelect,
         'ListOfNestedModel' : InputLNM,
+        'gridFormEditor' : InputLNM,
         'AutocompTreeEditor' : InputThesaurus,
         'AutocompleteEditor': InputAutocomplete,
         }
