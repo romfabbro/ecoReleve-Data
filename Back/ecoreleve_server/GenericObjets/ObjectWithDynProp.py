@@ -355,10 +355,12 @@ class ObjectWithDynProp:
         #### IF ID is send from front --> get data of this object in order to display value into form which will be sent ####
         data = self.GetFlatObject(schema)
         resultat['data'] = data
+        resultat['recursive_level'] = 0
+        resultat = self.getDefaultValue(resultat)
         if self.ID :
             resultat['data']['id'] = self.ID
             for key, value in schema.items():
-                if (DisplayMode.lower() != 'edit' and schema[key]['fullPath'] is True):
+                if (DisplayMode.lower() != 'edit' and 'fullPath' in schema[key] and schema[key]['fullPath'] is True):
                     try : 
                         resultat['data'][key] = self.splitFullPath(resultat['data'][key])
                     except : pass
@@ -366,7 +368,8 @@ class ObjectWithDynProp:
             # add default values for each field in data if exists
             #for attr in schema:
             resultat['data']['id'] = 0
-        resultat = self.getDefaultValue(resultat)
+            resultat['data'].update(resultat['schema']['defaultValues'])
+
         # resultat['schema']['defaultValues'] = defaultValues
         return resultat
 
@@ -376,16 +379,20 @@ class ObjectWithDynProp:
 
     def getDefaultValue(self,resultat):
         defaultValues = {}
+        recursive_level = resultat['recursive_level']
         for key, value in resultat['schema'].items():
             if value['defaultValue'] is not None:
                 defaultValues[key] = value['defaultValue']
             if 'subschema' in value:
-                temp = {'schema':value['subschema'],'defaultValues':{}}
+                temp = {'schema':value['subschema'],'defaultValues':{}, 'recursive_level':recursive_level+1}
                 subData = self.getDefaultValue(temp)
+                resultat['schema'][key]['subschema']['defaultValues'] = subData
                 # if value['defaultValue'] is None and 'required' not in value['validators'] :
                 #     del subData['id']
-                # resultat['schema'][key]['subschema'] = subData
-        resultat['schema']['defaultValues'] = defaultValues
+        if recursive_level < 1:
+            resultat['schema']['defaultValues'] = defaultValues
+        else :
+            resultat = defaultValues
         return resultat
 
 

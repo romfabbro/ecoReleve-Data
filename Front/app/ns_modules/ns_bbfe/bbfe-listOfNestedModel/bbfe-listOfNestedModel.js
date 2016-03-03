@@ -35,7 +35,6 @@ define([
             this.hasNestedForm = true;
 
             this.key = this.options.key;
-            console.log(options);
             //this.defaultValue = this.options.model.defaultValues[key];
         },
         //removeForm
@@ -46,14 +45,13 @@ define([
         addEmptyForm: function() {
             console.log(this.options)
             var mymodel = Backbone.Model.extend({
-                defaults : this.options.model.attributes[this.key]
+                defaults : this.options.schema.subschema.defaultValues
             });
 
             var model = new mymodel();
             //model.default = this.options.model.attributes[this.key];
             model.schema = this.options.schema.subschema;
             model.fieldsets = this.options.schema.fieldsets;
-            console.log(model)
             this.addForm(model);
         },
 
