@@ -190,11 +190,11 @@ class ModuleForms(Base):
             self.dto['fieldsets'] = resultat
             self.dto['subschema'] = subschema
 
-            try :
-                subTypeObj = int(self.Options)
-                self.dto['defaultValue'] = {'FK_ProtocoleType':subTypeObj}
-            except : 
-                pass
+            # try :
+            #     subTypeObj = int(self.Options)
+            #     self.dto['defaultValue'] = {'FK_ProtocoleType':subTypeObj}
+            # except : 
+            #     pass
 
     def InputThesaurus(self) :
         if self.Options is not None and self.Options != '' :

@@ -363,16 +363,29 @@ class ObjectWithDynProp:
                         resultat['data'][key] = self.splitFullPath(resultat['data'][key])
                     except : pass
         else :
-            resultat['data']['id'] = 0
             # add default values for each field in data if exists
             #for attr in schema:
-            for key, value in schema.items():
-                if value['defaultValue'] is not None:
-                    resultat['data'][key] = value['defaultValue']
-
+            resultat['data']['id'] = 0
+        resultat = self.getDefaultValue(resultat)
+        # resultat['schema']['defaultValues'] = defaultValues
         return resultat
 
     def splitFullPath(self,value):
         splitValue = value.split('>')[-1]
         return splitValue
+
+    def getDefaultValue(self,resultat):
+        defaultValues = {}
+        for key, value in resultat['schema'].items():
+            if value['defaultValue'] is not None:
+                defaultValues[key] = value['defaultValue']
+            if 'subschema' in value:
+                temp = {'schema':value['subschema'],'defaultValues':{}}
+                subData = self.getDefaultValue(temp)
+                # if value['defaultValue'] is None and 'required' not in value['validators'] :
+                #     del subData['id']
+                # resultat['schema'][key]['subschema'] = subData
+        resultat['schema']['defaultValues'] = defaultValues
+        return resultat
+
 
