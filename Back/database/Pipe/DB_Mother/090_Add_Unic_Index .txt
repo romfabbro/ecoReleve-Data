@@ -6,7 +6,7 @@ WHERE ID in (
 SELECT MAX(ID) 
 
      
-  FROM [EcoReleve_ECWP].[dbo].ModuleForms g
+  FROM ModuleForms g
 GROUP By [Module_ID]
       ,[TypeObj]
       ,[Name]
