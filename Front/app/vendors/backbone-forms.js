@@ -230,7 +230,11 @@ var Form = Backbone.View.extend({
         $container.append(fieldset.render().el);
       });
     });
-
+    var fieldAtBegin = $form.find('[class^=begin-line]');
+    
+    _.each(fieldAtBegin, function(field){
+      $(field).before('<div class="clearfix"></div>');
+    });
     //Set the main element
     this.setElement($form);
 
