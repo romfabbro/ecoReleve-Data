@@ -121,6 +121,7 @@ define([
 		ThesaurusEditor.prototype.initBBFE = function(options){
 		  var _this = this;
 			this.bbfe = new ThesaurusPicker(options);
+
 			this.bbfe.itemClick = function(){
 				_this.element.$el.change();
 			};
@@ -133,11 +134,20 @@ define([
 		};
 
 		ThesaurusEditor.prototype.getValue = function(){
-		  return {
-		  	value: this.element.getValue(),
-		  	displayValue: this.element.getDisplayedValue(),
-				error: this.element.isTermError,
-		  }
+			if( this.bbfe.schema.editable ) {
+				return {
+					value: this.element.getValue(),
+					displayValue: this.element.getDisplayedValue(),
+					error: this.element.isTermError,
+				}			
+			}
+			else {
+			return {
+				value: this.bbfe.value.value,
+				displayValue : this.bbfe.value.displayValue,
+				error : this.bbfe.isTermError,
+			}
+		}
 		};
 
 
@@ -165,12 +175,12 @@ define([
 		  this.element = this.bbfe.render();
 		};
 
-		AutocompleteEditor.prototype.getValue = function(){
-		  return {
-		  	value: this.element.getValue(),
-		  	displayValue: this.element.$input[0].value //not sure why
-		  }
-		};
+		// AutocompleteEditor.prototype.getValue = function(){
+		//   return {
+		//   	value: this.element.getValue(),
+		//   	displayValue: this.element.$input[0].value //not sure why
+		//   }
+		// };
 
 
     var NumberEditor = function () {};
@@ -187,6 +197,10 @@ define([
 		TextEditor.prototype.initBBFE = function(options){
 		  this.bbfe = new Form.editors.Text(options);
 		  this.element = this.bbfe.render();
+		};
+
+		TextEditor.prototype.getValue = function(){
+		 return this.element.getValue();
 		};
 
     var CheckboxEditor = function () {};

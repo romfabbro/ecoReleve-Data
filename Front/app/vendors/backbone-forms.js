@@ -1367,6 +1367,7 @@ Form.editors.Number = Form.editors.Text.extend({
   }),
 
   initialize: function(options) {
+    this.defaultValue = options.schema.defaultValue;
     Form.editors.Text.prototype.initialize.call(this, options);
 
     var schema = this.schema;

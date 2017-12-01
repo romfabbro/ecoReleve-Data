@@ -40,6 +40,7 @@ require.config({
     'sha1': '../bower_components/sha1/sha1',
     'sweetAlert': '../bower_components/sweetalert/lib/sweet-alert.min',
     'moment': '../bower_components/moment/min/moment.min',
+    'moment-timezone-with-data': '../bower_components/moment-timezone/builds/moment-timezone-with-data-2012-2022',
     'dateTimePicker': '../bower_components/eonasdan-bootstrap-datetimepicker/src/js/bootstrap-datetimepicker',
     //'backbone.list'     : '../bower_components/backbone-forms/distribution.amd/editors/list',
     'backbone.paginator': '../bower_components/backbone.paginator/lib/backbone.paginator.min',
@@ -50,7 +51,7 @@ require.config({
     'dropzone': '../bower_components/dropzone/dist/dropzone',
     'i18n': '../bower_components/i18n/i18next',
     'chart': '../bower_components/chartjs/Chart',
-    'tooltipster': '../bower_components/tooltipster/js/jquery.tooltipster.min',
+    'tooltipster': '../bower_components/tooltipster/dist/js/tooltipster.bundle.min',
 
     'ns_filter_bower': '../bower_components/NaturalJS_Filter/model-filter',
     'ag-grid': '../bower_components/ag-grid/dist/ag-grid',

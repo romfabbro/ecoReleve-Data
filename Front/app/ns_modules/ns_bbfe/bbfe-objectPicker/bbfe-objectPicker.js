@@ -236,6 +236,8 @@ define([
           data['ELE'] = model.ELE;
           data['Precision'] = model.precision;
           data['StartDate'] = model.StationDate;
+          data['Place'] = model.Place
+          data['FK_Region'] = model.FK_Region
           break;
         case 'sensors':
           break;
@@ -271,7 +273,7 @@ define([
               return;
             }
             var data = this.loadData();
-            var stationDate = new moment(data.StartDate, 'DD/MM/YYYY HH:mm:ss');
+
             $.ajax({
               context: this,
               url: 'monitoredSites/'+id_+'/history',
@@ -282,10 +284,13 @@ define([
                 var nextDate = new moment(next.StartDate, 'DD/MM/YYYY HH:mm:ss').valueOf();
                 return minDate < nextDate ? min : next;
               });
-              var minPositionDate = new moment(minPosition.StartDate, 'DD/MM/YYYY HH:mm:ss');
-              if (stationDate.valueOf() < minPositionDate.valueOf()){
-                _this.ruleOnchange(minPosition);
+              if(data.StartDate){
+                var stationDate = new moment(data.StartDate, 'DD/MM/YYYY HH:mm:ss');
+                var minPositionDate = new moment(minPosition.StartDate, 'DD/MM/YYYY HH:mm:ss');
+                if (stationDate.valueOf() < minPositionDate.valueOf()){
+                  _this.ruleOnchange(minPosition);
                 }
+              }
               }).fail(function() {
                 // console.error('an error occured');
                 // _this.histoMonitoredSite.error = true;
@@ -379,14 +384,7 @@ define([
           break;
 
         case 'monitoredSites':
-          data = {};
-
-          data['LAT'] = _this.form.model.get('LAT');
-          data['LON'] = _this.form.model.get('LON');
-          data['Name'] = _this.form.model.get('Name');
-          data['ELE'] = _this.form.model.get('ELE');
-          data['Precision'] = _this.form.model.get('precision');
-          data['StartDate'] = _this.form.model.get('StationDate');
+          data =  _this.loadData();
 
           _this.regionManager.get('modal').show(new _this.NewView({
             objectType: ctx.model.get('objectType'),
@@ -395,15 +393,39 @@ define([
           break;
 
         case 'sensors':
-          ctx.ui.btnNew.tooltipList({
-            position: 'top',
-            availableOptions: ctx.availableTypeObj,
-            liClickEvent: function(liClickValue) {
+         var _ctx = ctx; 
+          var ulElem = document.createElement("ul");
+          var tabLength = ctx.availableTypeObj.length;
+          for( var i = 0 ; i < tabLength ; i++ ) {
+            var elem = ctx.availableTypeObj[i];
+            var liElem = document.createElement('li');
+            liElem.onclick = function(e) {
+              _ctx.ui.btnNew.tooltipster('close');
               _this.regionManager.get('modal').show(new _this.NewView({
-                objectType: liClickValue
+                objectType: this.getAttribute('data-value')
               }));
+            };
+            liElem.setAttribute('data-value' , elem.val)
+            liElem.innerHTML = elem.label;
+            ulElem.appendChild(liElem);
+          }
+          ctx.ui.btnNew.tooltipster({
+            theme : 'tooltipList',
+            position: 'top',
+            interactive : true,
+            content: '',
+            contentAsHTML : true,
+            functionReady: function(instance,helper) {
+              var elemRoot = instance.elementTooltip(); //.appendChild(ulElem)
+              var elemContent = elemRoot.getElementsByClassName('tooltipster-content');
+              $(elemContent).append(ulElem);
+              instance.reposition();
             },
+            functionAfter : function( instance, helper) {
+              instance.destroy();
+            }
           });
+          ctx.ui.btnNew.tooltipster('open');
           break;
       }
     },
