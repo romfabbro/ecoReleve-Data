@@ -4,6 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import TimeoutError
 import pandas as pd
 from traceback import print_exc
+import requests
+from multiprocessing.dummy import Pool as ThreadPool
+import copy
+import time
+import redis
+
 
 AppConfig = configparser.ConfigParser()
 AppConfig.read('././development.ini')
@@ -48,22 +54,6 @@ DynPropNames = {
 thesaurusDictTraduction = {}
 invertedThesaurusDict = {'en': {}, 'fr': {}}
 userOAuthDict = {}
-
-
-def loadThesaurusTrad(config):
-    session = config.registry.dbmaker()
-    if 'ERDThesaurusTerm' in Base.metadata.tables:
-        thesTable = Base.metadata.tables['ERDThesaurusTerm']
-        query = select(thesTable.c)
-
-        results = session.execute(query).fetchall()
-
-        for row in results:
-            thesaurusDictTraduction[row['fullPath']] = {
-                'en': row['nameEn'], 'fr': row['nameFr']}
-            invertedThesaurusDict['en'][row['nameEn']] = row['fullPath']
-            invertedThesaurusDict['fr'][row['nameFr']] = row['fullPath']
-        session.close()
 
 
 def loadUserRole(session):

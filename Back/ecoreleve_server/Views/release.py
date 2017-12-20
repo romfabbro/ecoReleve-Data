@@ -1,10 +1,9 @@
 from ..Models import (
     Individual,
     Station,
-    Observation,
-    # ProtocoleType,
-    invertedThesaurusDict,
-    thesaurusDictTraduction
+    Observation
+    # invertedThesaurusDict,
+    # thesaurusDictTraduction
 )
 import json
 from datetime import datetime
@@ -18,8 +17,11 @@ from .individual import IndividualsView
 from ..GenericObjets.ObjectView import CustomView
 from ..controllers.ApiController import RootCore
 from ..utils.parseValue import isNumeric
+from ..utils.parseValue import isNumeric, retrieveThesaurusFromLng
 import operator
 from ..Models.Equipment import set_equipment
+
+ProtocoleType = Observation.TypeClass
 
 
 class ReleaseIndividualsView(IndividualsView):
@@ -358,7 +360,7 @@ def isavailableSensor(request, data):
 def getFullpath(item, lng):
     name, val = item
     try:
-        newVal = invertedThesaurusDict[lng][val]
+        newVal = retrieveThesaurusFromLng(val, lng)
     except:
         newVal = val
     return (name, newVal)

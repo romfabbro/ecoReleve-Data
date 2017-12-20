@@ -15,13 +15,13 @@ from .Models import (
     BaseExport,
     dbConfig,
     db,
-    loadThesaurusTrad,
     groupfinder
 )
 from .Views import add_routes, add_cors_headers_response_callback
 from pyramid.events import NewRequest
 from sqlalchemy.orm import sessionmaker, scoped_session
 from .utils.adapters import *
+from .utils.loadThesaurus import loadThesaurusTrad
 
 
 def includeme(config):
