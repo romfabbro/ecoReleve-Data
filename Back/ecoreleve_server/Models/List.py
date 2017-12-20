@@ -214,6 +214,13 @@ class IndividualList(CollectionEngine):
                 query = query.where(eval_.eval_binary_expr(
                     Sensor.UnicIdentifier, criteriaObj['Operator'], criteriaObj['Value']))
 
+        if curProp == 'FK_SensorType':
+            if self.history:
+                query = self.whereInEquipement(query, [criteriaObj])
+            else:
+                query = query.where(eval_.eval_binary_expr(
+                    SensorType.Name, criteriaObj['Operator'], criteriaObj['Value']))
+
         if curProp == 'Status_':
             StatusTable = Base.metadata.tables['IndividualStatus']
             query = query.where(eval_.eval_binary_expr(
