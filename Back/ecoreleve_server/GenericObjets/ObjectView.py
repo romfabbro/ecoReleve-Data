@@ -193,7 +193,6 @@ class DynamicObjectCollectionView(CustomView):
 
     def __init__(self, ref, parent):
         CustomView.__init__(self, ref, parent)
-        print('ref : ', ref)
         self.objectDB = self.item.model()
         if not hasattr(self.objectDB, 'session') or not self.objectDB.session:
             self.objectDB.session = self.session

@@ -128,4 +128,6 @@ def main(global_config, **settings):
     # from .Models import test
     # test(config)
 
+    # from .Models.Region import getGeomRegion
+    # getGeomRegion(dbConfig['dbSession']())
     return config.make_wsgi_app()
