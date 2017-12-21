@@ -115,12 +115,12 @@ def retrieveThesaurusFromLng(data, lng):
     # lng = 'en'
     # data = 'dead'
     for node, children in thesaurusDictTraduction.items():
-        print('searching in node : ' + node)
+        # print('searching in node : ' + node)
         filtering = list(
             filter(lambda k: children[lng][k] == data, children[lng].keys()))
         if filtering:
             break
-    return filtering[0]
+    return filtering[0] or data
 
 
 def formatObjetPicker(data, key, label):

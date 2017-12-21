@@ -70,7 +70,7 @@ define([
         _this.$el.find('.js-station-name').html(model.get('Name'));
         _this.$el.find('.js-station-date').html(model.get('StationDate'));
       }});
-      this.displayFilter();
+      // this.displayFilter();
       this.displayGrid();
     },
 
@@ -88,7 +88,7 @@ define([
         url: 'release/individuals/',
         com: this.com,
         filterContainer: this.ui.filter,
-        objectType: 'individus',
+        objectType: 1,
         filtersValues: this.defaultFilters,
       });
     },
