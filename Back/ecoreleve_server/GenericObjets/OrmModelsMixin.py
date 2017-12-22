@@ -512,12 +512,16 @@ class HasDynamicProperties(HasStaticProperties):
 
     def getLatestDynamicValues(self):
         ''' retrieve latest values of dynamic properties '''
+        if hasattr(self, 'latestValues'):
+            return self.latestValues
         if not hasattr(self, 'latestValues') and self.ID:
             table = self.LastDynamicValueViewClass
             query = table.select().where(
                 table.c['FK_' + self.__tablename__] == self.ID)
             values = self.session.execute(query).fetchall()
+
             self.latestValues = [(lambda x: dict(x))(val) for val in values]
+
         else:
             self.latestValues = []
         return self.latestValues

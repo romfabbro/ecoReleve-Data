@@ -163,7 +163,6 @@ class ReleaseIndividualsView(IndividualsView):
             for indiv in indivList:
                 
                 curIndiv = session.query(Individual).get(indiv['ID'])
-                # print(curIndiv.properties)
                 if not taxon:
                     taxon = curIndiv.Species
                 try:
@@ -202,14 +201,14 @@ class ReleaseIndividualsView(IndividualsView):
                 curVertebrateInd.Comments = None
                 vertebrateIndList.append(curVertebrateInd)
 
+                curReleaseInd = getnewObs(releaseIndID)
+                curReleaseInd.values = indiv
+                releaseIndList.append(curReleaseInd)
+
                 curBiometry = getnewObs(biometryID)
                 curBiometry.values = indiv
                 curBiometry.Comments = None
                 biometryList.append(curBiometry)
-
-                curReleaseInd = getnewObs(releaseIndID)
-                curReleaseInd.values = indiv
-                releaseIndList.append(curReleaseInd)
 
                 sensor_id = indiv.get(
                     'FK_Sensor', None) or indiv.get('fk_sensor', None)
@@ -271,10 +270,10 @@ class ReleaseIndividualsView(IndividualsView):
                 releaseGrp = None
 
             if vertebrateGrp:
-                for prop, val in vertebrateGrp.__properties__.items():
+                for prop, val in dictVertGrp.items():
                     if isNumeric(val):
                         vertebrateGrp.setValue(
-                            prop, int(val) + int(dictVertGrp.get(prop, 0)))
+                            prop, int(val) + int(vertebrateGrp.values.get(prop, 0)))
             else:
                 vertebrateGrp = Observation()
                 vertebrateGrp.session = session
@@ -283,6 +282,7 @@ class ReleaseIndividualsView(IndividualsView):
                 vertebrateGrp.values = dictVertGrp
 
             if releaseGrp:
+
                 releaseGrp.setValue('nb_individuals', int(
                     obs.values.get('nb_individuals')) + len(releaseIndList))
             else:
@@ -339,8 +339,7 @@ class ReleaseView(CustomView):
                     where Name = 'release_method' """)
         nodeID = self.session.execute(query).scalar()
         listReleaseMethod = thesaurusDictTraduction[nodeID][userLng]
-        print(listReleaseMethod)
-        # if userLng != 'fr':
+
         result = []
         for k, v in listReleaseMethod.items():
             result.append({'label':v, 'val':k})
