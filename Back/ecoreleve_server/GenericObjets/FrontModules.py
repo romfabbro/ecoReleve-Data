@@ -15,7 +15,16 @@ import json
 from pyramid import threadlocal
 
 
-FieldSizeToClass = {0:'col-md-3',1:'col-md-6',2:'col-md-12'}
+FieldSizeToClass = {0: 'col-md-3', 1: 'col-md-6', 2: 'col-md-12'}
+
+
+def binaryTest(binaryWeight, binaryToTest):
+    binariyCodes = [1, 2, 4, 8, 16, 32]
+    try:
+        pos = binariyCodes.index(binaryToTest)
+    except:
+        return False
+    return binaryWeight & (1 << pos) > 0
 
 
 def isHidden(int_Render):
@@ -84,28 +93,48 @@ class ModuleForms(Base):
     def handleSchemaGrid(self):
         if self.dto.get('size', None):
             self.dto['width'] = self.dto['size']
-            self.dto['minWidth'] = self.dto['size']-(self.dto['size']/1.5)
-            self.dto['maxWidth'] = self.dto['size']+(self.dto['size']/1.5)
-        if self.FormRender == 4:
+            self.dto['minWidth'] = self.dto['size'] - (self.dto['size'] / 1.5)
+            self.dto['maxWidth'] = self.dto['size'] + (self.dto['size'] / 1.5)
+        if binaryTest(self.FormRender, 8):
             self.dto['pinned'] = 'left'
         return self.dto
 
-    def GetDTOFromConf(self, Editable, isGrid=False):
-        ''' return input field to build form '''
+    def GetDTOFromConf(self, displayMode, isGrid=False):
+        ''' return input field to build form :
 
-        self.Editable = Editable
-        curEditable = self.Editable
+            3 display modes : 
+                - "display" : all input non editable, 1
+                - "create",
+                - "edit"
+
+        '''
+        binaryMode = 0
+        self.displayMode = displayMode
+        if (displayMode.lower() == 'display'):
+            self.Editable = False
+        else:
+            self.Editable = True
+
         curInputType = self.InputType
+        isDisabled = False
 
         if self.Editable:
-            if self.FormRender < 2:
-                curEditable = False
-                isDisabled = True
-            else:
+
+            isDisabled = True
+            if binaryTest(self.FormRender, 2):
+                # input is inactive only in edit mode
+                if displayMode.lower() == 'edit':
+                    isDisabled = True
+                else:
+                    isDisabled = False
+
+            if binaryTest(self.FormRender, 4):
+
                 isDisabled = False
             self.fullPath = False
             curSize = self.FieldSizeEdit
         else:
+            # display mode, all input inactive
             curSize = self.FieldSizeDisplay
             self.fullPath = True
             isDisabled = True
@@ -115,8 +144,10 @@ class ModuleForms(Base):
         self.dto = {
             'name': self.Name,
             'type': curInputType,
-            'title': self.Label,
-            'editable': Editable,
+
+            'title': self.Label if self.Label else ' ',
+            'editable': not isDisabled,
+
             'editorClass': str(self.editorClass),
             'validators': [],
             'options': None,
@@ -180,11 +211,11 @@ class ModuleForms(Base):
                     temp[key] = row[key]
                 self.dto['options'].append(temp)
             sortedSelect = sorted(
-                [x for x in self.dto['options'] if x['val'] not in [-1,0]], key=lambda k: k['label'])
+                [x for x in self.dto['options'] if x['val'] not in [-1, 0]], key=lambda k: k['label'])
 
-            self.dto['options'] = [x for x in self.dto['options'] if x['val'] in [-1,0]]
+            self.dto['options'] = [
+                x for x in self.dto['options'] if x['val'] in [-1, 0]]
             self.dto['options'].extend(sortedSelect)
-
 
     def InputLNM(self):
         ''' build ListOfNestedModel input type :
@@ -204,12 +235,13 @@ class ModuleForms(Base):
 
         for conf in result:
             if conf.InputType == 'GridRanged':
-                gridRanged = conf.GetDTOFromConf(self.Editable, True)
+                gridRanged = conf.GetDTOFromConf(self.displayMode, True)
                 subschema.update(gridRanged)
             else:
                 if self.InputType == 'GridFormEditor':
                     isGrid = True
-                subschema[conf.Name] = conf.GetDTOFromConf(self.Editable, isGrid)
+                subschema[conf.Name] = conf.GetDTOFromConf(
+                    self.displayMode, isGrid)
 
         subschema['ID'] = {
             'name': 'ID',
@@ -330,9 +362,9 @@ class ModuleForms(Base):
                 + CssClass + ' ' + addClass,
                 'order': i,
                 'size': curSize,
-                'width' : curSize,
-                'minWidth' : curSize-(curSize/1.5),
-                'maxWidth' : curSize+(curSize/1.5)
+                'width': curSize,
+                'minWidth': curSize - (curSize / 1.5),
+                'maxWidth': curSize + (curSize / 1.5)
             }
             self.dto['C' + str(i)] = curDTO
 
@@ -439,7 +471,7 @@ class ModuleGrids (Base):
         else:
             filter_['fieldClass'] = FieldSizeToClass[self.FilterSize],
 
-        if self.FilterType == 'Select' and self.Options is not None:
+        if self.FilterType == 'Select' and self.Options is not None and 'select' in self.Options.lower():
             result = self.session.execute(text(self.Options)).fetchall()
             filter_['options'] = [
                 {'label': row['label'], 'val':row['val']} for row in result]

@@ -21,7 +21,14 @@ from ..Models import (
     Equipment,
     Sensor,
     SensorType,
-    MonitoredSite
+    MonitoredSite,
+    Import,
+    ArgosEngineering,
+    ArgosGps,
+    GPX,
+    Gsm,
+    GsmEngineering,
+    Rfid
 )
 from ..utils import Eval
 from collections import OrderedDict
@@ -184,7 +191,8 @@ class IndividualList(ListObjectWithDynProp):
 
         joinTable = super().GetJoinTable(searchInfo)
 
-        releaseFilter = list(filter(lambda x: x['Column'] == 'LastImported', searchInfo['criteria']))
+        releaseFilter = list(
+            filter(lambda x: x['Column'] == 'LastImported', searchInfo['criteria']))
         if len(releaseFilter) > 0:
             return joinTable
 
@@ -225,6 +233,13 @@ class IndividualList(ListObjectWithDynProp):
             else:
                 query = query.where(eval_.eval_binary_expr(
                     Sensor.UnicIdentifier, criteriaObj['Operator'], criteriaObj['Value']))
+
+        if curProp == 'FK_SensorType':
+            if self.history:
+                query = self.whereInEquipement(query, [criteriaObj])
+            else:
+                query = query.where(eval_.eval_binary_expr(
+                    SensorType.Name, criteriaObj['Operator'], criteriaObj['Value']))
 
         if curProp == 'Status_':
             StatusTable = Base.metadata.tables['IndividualStatus']
@@ -603,3 +618,18 @@ class MonitoredSiteList(ListObjectWithDynProp):
                      ))
             fullQueryJoin = fullQueryJoin.where(exists(subSelect))
         return fullQueryJoin
+
+
+class ImportList(Generator):
+
+    def __init__(self, SessionMaker):
+
+        joinTable = join(Import, User, Import.FK_User == User.id)
+
+        tablecImprt = select([Import,
+                              User.fullname.label('Login'),
+
+                              ]).select_from(joinTable
+                                             )
+        tablecImprt = tablecImprt.cte()
+        super().__init__(tablecImprt, SessionMaker)

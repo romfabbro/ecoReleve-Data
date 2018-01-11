@@ -20,6 +20,8 @@ define([
       icon: 'reneco-bustard',
       subincon: 'reneco-bustard',
 
+      disabledNew: true,
+      
       formConfig: {
         modelurl: 'individuals',
         displayMode: 'display',
@@ -102,6 +104,7 @@ define([
         headerName: 'date',
         filter: 'date',
         pinned: 'left',
+        sort: 'desc',
         minWidth: 200,
         cellRenderer: function(params){
           if(params.data.type_ === 'station'){

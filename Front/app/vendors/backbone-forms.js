@@ -900,6 +900,9 @@ Form.Field = Backbone.View.extend({
       if(!elem.length){
         elem = this.$el.find('select:first');
       }
+      if(!elem.length){
+        elem = this.$el.find('textarea:first');
+      } 
       elem.addClass(this.errorClassName);
 
       //this.$el.addClass(this.errorClassName);
@@ -919,6 +922,9 @@ Form.Field = Backbone.View.extend({
     if(!elem.length){
       elem = this.$el.find('select:first');
     }
+    if(!elem.length){
+      elem = this.$el.find('textarea:first');
+    } 
     elem.removeClass(this.errorClassName);
     //this.$el.removeClass(this.errorClassName);
 
@@ -981,7 +987,9 @@ Form.Field = Backbone.View.extend({
 
   template: _.template('\
     <div>\
+    <% if (title) { %>\
       <label for="<%= editorId %>"><%= title %></label>\
+      <% } %>\
       <div>\
         <span data-editor></span>\
         <div data-error></div>\
@@ -1361,6 +1369,7 @@ Form.editors.Number = Form.editors.Text.extend({
   }),
 
   initialize: function(options) {
+    this.defaultValue = options.schema.defaultValue;
     Form.editors.Text.prototype.initialize.call(this, options);
 
     var schema = this.schema;
