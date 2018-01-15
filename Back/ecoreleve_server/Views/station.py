@@ -93,12 +93,9 @@ class StationsView(DynamicObjectCollectionView):
         if 'criteria' in params:
             lastImported = False
             for obj in params['criteria']:
-                if obj['Column'] == 'LastImported':
-                    self.lastImported(obj, params)
-                    lastImported = True
-                if obj['Column'] == 'FK_FieldWorker' and obj['Operator'] == 'IN':
-                    fieldworkers = obj['Value']
-                    obj['Value'] = User.getUsersIds(fieldworkers)
+                    if obj['Column'] == 'LastImported':
+                        self.lastImported(obj, params)
+                        lastImported = True
 
         if not lastImported:
             map(lambda x: obj['Column'] !=

@@ -117,10 +117,11 @@ class StationList(CollectionEngine):
                 query = query.where(exists(subSelect))
 
         if curProp == 'FK_FieldWorker':
+            joinTable = join(Station_FieldWorker, User, Station_FieldWorker.FK_FieldWorker == User.id)
             subSelect = select([Station_FieldWorker]
-                               ).where(
+                               ).select_from(joinTable).where(
                 and_(Station.ID == Station_FieldWorker.FK_Station,
-                     eval_.eval_binary_expr(Station_FieldWorker.__table__.c[curProp],
+                     eval_.eval_binary_expr(User.__table__.c['Login'],
                                             criteriaObj['Operator'],
                                             criteriaObj['Value'])))
             query = query.where(exists(subSelect))

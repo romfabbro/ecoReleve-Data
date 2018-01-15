@@ -16,15 +16,17 @@ import json
 from pyramid import threadlocal
 
 
-FieldSizeToClass = {0:'col-md-3',1:'col-md-6',2:'col-md-12'}
+FieldSizeToClass = {0: 'col-md-3', 1: 'col-md-6', 2: 'col-md-12'}
+
 
 def binaryTest(binaryWeight, binaryToTest):
-    binariyCodes = [1,2,4,8,16,32]
+    binariyCodes = [1, 2, 4, 8, 16, 32]
     try:
         pos = binariyCodes.index(binaryToTest)
     except:
         return False
-    return binaryWeight & (1<<pos) > 0
+    return binaryWeight & (1 << pos) > 0
+
 
 def isHidden(int_Render):
     return not (int(int_Render) > 0)
@@ -92,8 +94,8 @@ class ModuleForms(Base):
     def handleSchemaGrid(self):
         if self.dto.get('size', None):
             self.dto['width'] = self.dto['size']
-            self.dto['minWidth'] = self.dto['size']-(self.dto['size']/1.5)
-            self.dto['maxWidth'] = self.dto['size']+(self.dto['size']/1.5)
+            self.dto['minWidth'] = self.dto['size'] - (self.dto['size'] / 1.5)
+            self.dto['maxWidth'] = self.dto['size'] + (self.dto['size'] / 1.5)
         if binaryTest(self.FormRender, 8):
             self.dto['pinned'] = 'left'
         return self.dto
@@ -120,7 +122,7 @@ class ModuleForms(Base):
         if self.Editable:
 
             isDisabled = True
-            if binaryTest(self.FormRender, 2) :
+            if binaryTest(self.FormRender, 2):
                 # input is inactive only in edit mode
                 if displayMode.lower() == 'edit':
                     isDisabled = True
@@ -210,11 +212,11 @@ class ModuleForms(Base):
                     temp[key] = row[key]
                 self.dto['options'].append(temp)
             sortedSelect = sorted(
-                [x for x in self.dto['options'] if x['val'] not in [-1,0]], key=lambda k: k['label'])
+                [x for x in self.dto['options'] if x['val'] not in [-1, 0]], key=lambda k: k['label'])
 
-            self.dto['options'] = [x for x in self.dto['options'] if x['val'] in [-1,0]]
+            self.dto['options'] = [
+                x for x in self.dto['options'] if x['val'] in [-1, 0]]
             self.dto['options'].extend(sortedSelect)
-
 
     def InputLNM(self):
         ''' build ListOfNestedModel input type :
@@ -239,7 +241,8 @@ class ModuleForms(Base):
             else:
                 if self.InputType == 'GridFormEditor':
                     isGrid = True
-                subschema[conf.Name] = conf.GetDTOFromConf(self.displayMode, isGrid)
+                subschema[conf.Name] = conf.GetDTOFromConf(
+                    self.displayMode, isGrid)
 
         subschema['ID'] = {
             'name': 'ID',
@@ -352,9 +355,9 @@ class ModuleForms(Base):
                 + CssClass + ' ' + addClass,
                 'order': i,
                 'size': curSize,
-                'width' : curSize,
-                'minWidth' : curSize-(curSize/1.5),
-                'maxWidth' : curSize+(curSize/1.5)
+                'width': curSize,
+                'minWidth': curSize - (curSize / 1.5),
+                'maxWidth': curSize + (curSize / 1.5)
             }
             self.dto['C' + str(i)] = curDTO
 

@@ -16,8 +16,7 @@ from ..Models.Equipment import checkEquip
 from .individual import IndividualsView
 from ..GenericObjets.ObjectView import CustomView
 from ..controllers.ApiController import RootCore
-from ..utils.parseValue import isNumeric
-from ..utils.parseValue import isNumeric, retrieveThesaurusFromLng
+from ..utils.parseValue import isNumeric, retrieveThesaurusFromLng, formatThesaurus
 import operator
 from ..Models.Equipment import set_equipment
 
@@ -343,6 +342,15 @@ class ReleaseView(CustomView):
         result = []
         for k, v in listReleaseMethod.items():
             result.append({'label':v, 'val':k})
+        query = text("""SELECT TTop_FullPath as val, TTop_Name as label"""
+                     + """ FROM THESAURUS.dbo.TTopic th
+            JOIN [ModuleForms] f on th.TTop_ParentID = f.Options
+            where Name = 'release_method' """)
+        result = self.session.execute(query).fetchall()
+        result = [dict(row) for row in result]
+        if userLng != 'fr':
+            for row in result:
+                row['label'] = formatThesaurus(row['val'])['displayValue']
         return result
 
 
