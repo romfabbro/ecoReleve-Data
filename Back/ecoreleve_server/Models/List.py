@@ -10,7 +10,7 @@ from sqlalchemy import (
     DATE,
     outerjoin)
 from sqlalchemy.orm import aliased
-from ..GenericObjets.ListObjectWithDynProp import ListObjectWithDynProp
+from ..GenericObjets.ListObjectWithDynProp import CollectionEngine
 from ..Models import (
     Observation,
     Station,
@@ -20,7 +20,7 @@ from ..Models import (
     Base,
     Equipment,
     Sensor,
-    SensorType,
+    # SensorType,
     MonitoredSite,
     Import,
     ArgosEngineering,
@@ -37,12 +37,12 @@ from ..utils.datetime import parse
 from ..utils.generator import Generator
 from sqlalchemy.sql.expression import union_all
 
-
+SensorType = Sensor.TypeClass
 eval_ = Eval()
 
 
-class StationList(ListObjectWithDynProp):
-    ''' this class extend ListObjectWithDynProp, it's used to filter stations '''
+class StationList(CollectionEngine):
+    ''' this class extend CollectionEngine, it's used to filter stations '''
 
     def __init__(self, frontModule, typeObj=None, startDate=None,
                  history=False, historyView=None):
@@ -58,7 +58,7 @@ class StationList(ListObjectWithDynProp):
             subSelect = select([o.ID]
                                ).where(
                 and_(Station.ID == o.FK_Station,
-                     eval_.eval_binary_expr(o.FK_ProtocoleType, criteriaObj['Operator'],
+                     eval_.eval_binary_expr(o._type_id, criteriaObj['Operator'],
                                             criteriaObj['Value'])))
             query = query.where(exists(subSelect))
 
@@ -155,7 +155,7 @@ class StationList(ListObjectWithDynProp):
         return query
 
 
-class IndividualList(ListObjectWithDynProp):
+class IndividualList(CollectionEngine):
 
     def __init__(self, frontModule, typeObj=None, startDate=None,
                  history=False, historyView=None):
@@ -191,7 +191,7 @@ class IndividualList(ListObjectWithDynProp):
         joinTable = outerjoin(joinTable, Sensor,
                               Sensor.ID == EquipmentTable.c['FK_Sensor'])
         joinTable = outerjoin(joinTable, SensorType,
-                              Sensor.FK_SensorType == SensorType.ID)
+                              Sensor.type_id == SensorType.ID)
 
         self.selectable.append(Sensor.UnicIdentifier.label('FK_Sensor'))
         self.selectable.append(SensorType.Name.label('FK_SensorType'))
@@ -294,7 +294,7 @@ class IndividualList(ListObjectWithDynProp):
             fullQueryExist = select([Equipment.FK_Individual]).select_from(
                 joinTableExist).where(Equipment.FK_Individual == Individual.ID)
             fullQueryExist = fullQueryExist.where(
-                and_(vs.c['FK_SensorDynProp'] == 9, Sensor.FK_SensorType == 4))
+                and_(vs.c['FK_SensorDynProp'] == 9, Sensor.type_id == 4))
 
         else:
             queryExist = select([e2]).where(
@@ -305,7 +305,7 @@ class IndividualList(ListObjectWithDynProp):
                 [Equipment.FK_Individual]).select_from(joinTableExist)
             fullQueryExist = fullQueryExist.where(and_(
                 ~exists(queryExist), and_(vs.c['FK_SensorDynProp'] == 9,
-                                          and_(Sensor.FK_SensorType == 4,
+                                          and_(Sensor.type_id == 4,
                                                and_(Equipment.Deploy == 1,
                                                     and_(Equipment.StartDate < startDate,
                                                          Equipment.FK_Individual == Individual.ID)
@@ -382,7 +382,7 @@ class IndivLocationList(Generator):
         super().__init__(IndivLoc, SessionMaker)
 
 
-class SensorList(ListObjectWithDynProp):
+class SensorList(CollectionEngine):
 
     def __init__(self, frontModule, typeObj=None, startDate=None,
                  history=False, historyView=None):
@@ -518,7 +518,7 @@ class SensorList(ListObjectWithDynProp):
         return query
 
 
-class MonitoredSiteList(ListObjectWithDynProp):
+class MonitoredSiteList(CollectionEngine):
 
     def __init__(self, frontModule, typeObj=None,
                  View=None, startDate=None, history=False):
@@ -545,7 +545,7 @@ class MonitoredSiteList(ListObjectWithDynProp):
         joinTable = outerjoin(
             joinTable,
             SensorType,
-            Sensor.FK_SensorType == SensorType.ID)
+            Sensor._type_id == SensorType.ID)
 
         self.selectable.append(Sensor.UnicIdentifier.label('FK_Sensor'))
         self.selectable.append(SensorType.Name.label('FK_SensorType'))
