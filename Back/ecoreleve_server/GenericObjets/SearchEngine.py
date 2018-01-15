@@ -276,9 +276,10 @@ class CollectionEngine():
         dataConfigWithThesaurus = list(
             filter(lambda obj: 'AutocompTreeEditor' == obj.FilterType, self.Conf))
         listWithThes = list(
-            map(lambda x: {'name': x.Name, 'options': x.Options}, listWithThes))
+            map(lambda x: {'name': x.Name, 'options': x.Options}, dataConfigWithThesaurus))
         # listWithThes = list(map(lambda x: x.Name, listWithThes))
 
+        userLng = threadlocal.get_current_request().authenticated_userid['userlanguage']
         # change thesaural term into laguage user
         for row in result:
             row = dict(map(lambda i: tradThesaurusTermV2(i, dataConfigWithThesaurus), row.items()))
