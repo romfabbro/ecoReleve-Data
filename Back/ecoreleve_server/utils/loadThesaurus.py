@@ -89,7 +89,7 @@ def getThesaurusNodeID(config):
     startIDs = [r for r, in session.execute(query).fetchall()]
     session.close()
 
-    thread_pool = ThreadPool(10, initConnection)
+    thread_pool = ThreadPool(5, initConnection)
     thesaurusList = dict(thread_pool.map_async(
         fetchThes, [{"StartNodeID": nodeID} for nodeID in startIDs]).get())
 
