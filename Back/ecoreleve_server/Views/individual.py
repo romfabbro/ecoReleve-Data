@@ -152,6 +152,37 @@ class IndividualsView(DynamicObjectCollectionView):
 
         return existingID
 
+    def retrieve(self):
+        import time
+        from ..GenericObjets.SearchEngine import QueryEngine
+        collection = QueryEngine(self.session, Individual)
+
+        filters = [
+            {
+                'Column':'ID',
+                'Operator':'>',
+                'Value': '1000'
+            },
+            {
+                'Column':'Species',
+                'Operator':'contains',
+                'Value': 'undulata'
+            },
+            {
+                'Column':'Status_',
+                'Operator':'=',
+                'Value': 'mort'
+            }
+        ]
+        result = collection.search(filters, selectable=["*", Individual.Status_], limit=1000, order_by=['ID:desc'])
+        print(result)
+        return result
+        # start = time.time()
+        # print("\n\n--------------------------------start Query API ")
+        # q = self.session.query(Individual).limit(10000).all()
+        # end = time.time()
+        # print('executing time : ',end - start)
+
 
 class IndividualLocationsView(SecurityRoot):
 

@@ -21,6 +21,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from ..Models import IntegerDateTime
 from ..GenericObjets.OrmModelsMixin import HasDynamicProperties
+from sqlalchemy.ext.associationproxy import association_proxy
 
 
 class ErrorCheckIndividualCodes(Exception):
@@ -60,18 +61,26 @@ class Individual (Base, HasDynamicProperties):
         'IndividualStatus', uselist=False, backref="Individual")
     Observations = relationship('Observation')
 
-    @hybrid_property
-    def Status_(self):
-        if self._Status_:
-            return self._Status_.Status_
-        else:
-            return None
+    Status_ = association_proxy('_Status_', 'Status_')
+    # @hybrid_property
+    # def Status_(self):
+    #     if self._Status_:
+    #         return self._Status_.Status_
+    #     else:
+    #         return None
 
-    @Status_.setter
-    def Status_(self, value):
-        # no value is stored because it is calculated
-        return
-
+    # @Status_.setter
+    # def Status_(self, value):
+    #     # no value is stored because it is calculated
+    #     return
+    
+    # @Status_.expression
+    # def Status_(cls):
+    #     return select([IndividualStatus.Status_]).where(cls.ID == IndividualStatus.FK_Individual).as_scalar()
+    def as_dict(self):
+        values = HasDynamicProperties.as_dict(self)
+        values['Status_'] = self.Status_
+        return values
 
 class Individual_Location(Base):
     __tablename__ = 'Individual_Location'
